@@ -1,0 +1,39 @@
+{
+  "name": "mockmanch-backend-gateway",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "watch": "npx tsc -w",
+    "prestart": "npm run build",
+    "start": "npx nodemon dist/index.js",
+    "dev": "npx concurrently --kill-others \"npm run watch\" \"npm start\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Himu336/MockManch-Backend-Gateway.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Himu336/MockManch-Backend-Gateway/issues"
+  },
+  "homepage": "https://github.com/Himu336/MockManch-Backend-Gateway#readme",
+  "description": "",
+  "dependencies": {
+    "agora-token": "^2.0.5",
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.11"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
