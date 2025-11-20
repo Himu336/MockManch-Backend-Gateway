@@ -1,13 +1,24 @@
 import type { Request, Response } from "express";
-import {
-  createRoomService,
-  joinRoomService
-} from "../services/room-service.js";
+import { createRoomService, joinRoomService } from "../services/room-service.js";
+import { generateAgoraToken } from "../utils/helper/agora-utils.js";
 
 export const createRoomController = async (req: Request, res: Response) => {
   try {
-    const data = await createRoomService(req.body);
-    return res.status(201).json({ success: true, data });
+    const room = await createRoomService(req.body);
+
+    if (!room) {
+      return res.status(500).json({ success: false, error: "Failed to create room" });
+    }
+
+    const token = generateAgoraToken(room.agoraChannel, room.hostId);
+
+    return res.status(201).json({
+      success: true,
+      room,
+      agora_app_id: process.env.AGORA_APP_ID,
+      agora_token: token
+    });
+
   } catch (err: any) {
     return res.status(500).json({ success: false, error: err.message });
   }
@@ -15,8 +26,22 @@ export const createRoomController = async (req: Request, res: Response) => {
 
 export const joinRoomController = async (req: Request, res: Response) => {
   try {
-    const data = await joinRoomService(req.body);
-    return res.status(200).json({ success: true, data });
+    const { room, participant } = await joinRoomService(req.body);
+
+    if (!participant) {
+      return res.status(500).json({ success: false, error: "Failed to join room" });
+    }
+
+    const token = generateAgoraToken(room.agoraChannel, participant.userId);
+
+    return res.status(200).json({
+      success: true,
+      room,
+      participant,
+      agora_app_id: process.env.AGORA_APP_ID,
+      agora_token: token
+    });
+
   } catch (err: any) {
     return res.status(500).json({ success: false, error: err.message });
   }
