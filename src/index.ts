@@ -4,8 +4,10 @@ import bodyParser from "body-parser";
 import ServerConfig from "./config/serverConfig.js";
 import apiRouter from "./routes/index.js";
 import { initWebSocket } from "./events/ws-gateway.js";
+import cors from "cors";
 
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
 
 // middlewares

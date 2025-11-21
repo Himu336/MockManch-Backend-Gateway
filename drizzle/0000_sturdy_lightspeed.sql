@@ -11,6 +11,5 @@ CREATE TABLE "group_room"."participants" (
 CREATE TABLE "group_room"."rooms" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"host_id" varchar NOT NULL,
-	"agora_channel" varchar NOT NULL,
 	"created_at" timestamp DEFAULT now()
 );

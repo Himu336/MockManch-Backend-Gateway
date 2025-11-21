@@ -7,18 +7,18 @@ export const createRoomService = async (payload: any) => {
   const hostId = payload.user_id;
   if (!hostId) throw new Error("Missing user_id");
 
-  const channelName = `room_${Date.now()}`;
+  const roomId = crypto.randomUUID();
 
   const [room] = await db.insert(rooms)
     .values({
-      id: crypto.randomUUID(),
-      hostId: hostId,
-      agoraChannel: channelName
+      id: roomId,
+      hostId,
     })
     .returning();
 
   return room;
 };
+
 
 export const joinRoomService = async (payload: any) => {
   const { room_id, user_id } = payload;

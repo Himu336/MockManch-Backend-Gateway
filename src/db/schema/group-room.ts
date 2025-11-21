@@ -5,7 +5,6 @@ export const groupRoomSchema = pgSchema("group_room");
 export const rooms = groupRoomSchema.table("rooms", {
   id: uuid("id").defaultRandom().primaryKey(),
   hostId: varchar("host_id").notNull(),
-  agoraChannel: varchar("agora_channel").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

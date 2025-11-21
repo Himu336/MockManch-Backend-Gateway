@@ -1,12 +1,11 @@
 // src/utils/helper/agora-utils.ts
 
 import AgoraPkg from "agora-token";
-
 const { RtcTokenBuilder, RtcRole } = AgoraPkg;
 
 export const generateAgoraToken = (
   channelName: string,
-  uid: string,
+  uid: string,         // STRING UID — do NOT convert to number
   expireSeconds: number = 3600
 ): string => {
   const appId = process.env.AGORA_APP_ID;
@@ -19,11 +18,11 @@ export const generateAgoraToken = (
   const currentTime = Math.floor(Date.now() / 1000);
   const privilegeExpireTime = currentTime + expireSeconds;
 
-  const token = RtcTokenBuilder.buildTokenWithUid(
+  const token = RtcTokenBuilder.buildTokenWithUserAccount(
     appId,
     appCert,
     channelName,
-    Number(uid),
+    uid, // STRING UID (your test-user-184 etc)
     RtcRole.PUBLISHER,
     privilegeExpireTime,
     privilegeExpireTime

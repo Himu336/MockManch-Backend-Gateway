@@ -1,5 +1,5 @@
 {
-  "id": "4c839531-5050-4f53-929a-bc25038e3163",
+  "id": "c7f0997a-d45c-4b67-a91c-f586bad5ee5d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -62,12 +62,6 @@
         },
         "host_id": {
           "name": "host_id",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "agora_channel": {
-          "name": "agora_channel",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
