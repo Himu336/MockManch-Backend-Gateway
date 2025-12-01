@@ -1,4 +1,5 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
+import type { AuthenticatedRequest } from "../middleware/authMiddleware.js";
 import {
   createInterviewSession,
   getCurrentQuestion,
@@ -8,19 +9,47 @@ import {
   type CreateInterviewRequest,
   type SubmitAnswerRequest,
 } from "../services/interview-service.js";
+import { deductTokensForService } from "../utils/token-deduction.js";
 
 /**
  * Controller to create a new interview session
+ * STRICT TOKEN DEDUCTION: Tokens are deducted BEFORE creating session
  */
-export const createInterviewController = async (req: Request, res: Response) => {
+export const createInterviewController = async (req: AuthenticatedRequest, res: Response) => {
   try {
+    // Authentication is required (enforced by middleware)
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        error: "Authentication required. Please include a valid Authorization token.",
+      });
+    }
+
+    // ============================================
+    // CRITICAL: Deduct tokens BEFORE creating session
+    // ============================================
+    const tokensDeducted = await deductTokensForService(
+      req,
+      res,
+      "text_interview",
+      {
+        service: "text_interview",
+        interview_type: req.body.interview_type,
+      }
+    );
+
+    if (!tokensDeducted) {
+      // Error response already sent by deductTokensForService
+      return;
+    }
+
     const payload: CreateInterviewRequest = {
       job_role: req.body.job_role,
       experience_level: req.body.experience_level,
       company: req.body.company,
       job_description: req.body.job_description,
       interview_type: req.body.interview_type,
-      user_id: req.body.user_id,
+      user_id: req.user.id, // Use authenticated user ID
       num_questions: req.body.num_questions,
     };
 
@@ -53,7 +82,7 @@ export const createInterviewController = async (req: Request, res: Response) => 
 /**
  * Controller to get current question for an interview session
  */
-export const getCurrentQuestionController = async (req: Request, res: Response) => {
+export const getCurrentQuestionController = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { session_id } = req.params;
 
@@ -108,7 +137,7 @@ export const getCurrentQuestionController = async (req: Request, res: Response) 
 /**
  * Controller to submit an answer for the current question
  */
-export const submitAnswerController = async (req: Request, res: Response) => {
+export const submitAnswerController = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { session_id } = req.params;
     const payload: SubmitAnswerRequest = {
@@ -150,7 +179,7 @@ export const submitAnswerController = async (req: Request, res: Response) => {
 /**
  * Controller to get comprehensive analysis after interview completion
  */
-export const getAnalysisController = async (req: Request, res: Response) => {
+export const getAnalysisController = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { session_id } = req.params;
 
@@ -188,7 +217,7 @@ export const getAnalysisController = async (req: Request, res: Response) => {
 /**
  * Controller to get current status of an interview session
  */
-export const getSessionStatusController = async (req: Request, res: Response) => {
+export const getSessionStatusController = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { session_id } = req.params;
 

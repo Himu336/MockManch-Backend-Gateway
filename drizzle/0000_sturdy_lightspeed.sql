@@ -1,4 +1,4 @@
-CREATE SCHEMA "group_room";
+CREATE SCHEMA IF NOT EXISTS "group_room";
 --> statement-breakpoint
 CREATE TABLE "group_room"."participants" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,

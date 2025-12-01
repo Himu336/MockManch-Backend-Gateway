@@ -1,10 +1,45 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
+import type { AuthenticatedRequest } from "../middleware/authMiddleware.js";
 import { createRoomService, joinRoomService } from "../services/room-service.js";
 import { generateAgoraToken } from "../utils/helper/agora-utils.js";
+import { deductTokensForService } from "../utils/token-deduction.js";
 
-export const createRoomController = async (req: Request, res: Response) => {
+/**
+ * Controller to create a new group practice room
+ * STRICT TOKEN DEDUCTION: Tokens are deducted BEFORE creating room
+ */
+export const createRoomController = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const room = await createRoomService(req.body);
+    // Authentication is required (enforced by middleware)
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        error: "Authentication required. Please include a valid Authorization token.",
+      });
+    }
+
+    // ============================================
+    // CRITICAL: Deduct tokens BEFORE creating room
+    // ============================================
+    const tokensDeducted = await deductTokensForService(
+      req,
+      res,
+      "group_practice",
+      {
+        service: "group_practice",
+        action: "create_room",
+      }
+    );
+
+    if (!tokensDeducted) {
+      // Error response already sent by deductTokensForService
+      return;
+    }
+
+    const room = await createRoomService({
+      ...req.body,
+      user_id: req.user.id, // Use authenticated user ID
+    });
 
     if (!room) {
       return res.status(500).json({ success: false, error: "Failed to create room" });
@@ -24,9 +59,43 @@ export const createRoomController = async (req: Request, res: Response) => {
   }
 };
 
-export const joinRoomController = async (req: Request, res: Response) => {
+/**
+ * Controller to join a group practice room
+ * STRICT TOKEN DEDUCTION: Tokens are deducted BEFORE joining room
+ */
+export const joinRoomController = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { room, participant } = await joinRoomService(req.body);
+    // Authentication is required (enforced by middleware)
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        error: "Authentication required. Please include a valid Authorization token.",
+      });
+    }
+
+    // ============================================
+    // CRITICAL: Deduct tokens BEFORE joining room
+    // ============================================
+    const tokensDeducted = await deductTokensForService(
+      req,
+      res,
+      "group_practice",
+      {
+        service: "group_practice",
+        action: "join_room",
+        room_id: req.body.room_id,
+      }
+    );
+
+    if (!tokensDeducted) {
+      // Error response already sent by deductTokensForService
+      return;
+    }
+
+    const { room, participant } = await joinRoomService({
+      ...req.body,
+      userId: req.user.id, // Use authenticated user ID
+    });
 
     if (!participant) {
       return res.status(404).json({ success: false, error: "Participant not found" });

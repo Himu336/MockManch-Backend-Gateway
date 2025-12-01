@@ -23,6 +23,7 @@
   "homepage": "https://github.com/Himu336/MockManch-Backend-Gateway#readme",
   "description": "",
   "dependencies": {
+    "@supabase/supabase-js": "^2.86.0",
     "agora-token": "^2.0.5",
     "axios": "^1.13.2",
     "concurrently": "^9.2.1",
